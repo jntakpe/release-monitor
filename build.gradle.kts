@@ -3,9 +3,6 @@ import org.gradle.kotlin.dsl.*
 group = "com.github.jntakpe"
 version = "0.1.0-SNAPSHOT"
 
-val assertJVersion = "3.8.0"
-val junitVersion = "5.0.1"
-
 buildscript {
     repositories {
         jcenter()
@@ -13,9 +10,7 @@ buildscript {
         maven("https://repo.spring.io/milestone")
     }
     dependencies {
-        val junitGradleVersion = "1.0.0"
         val springBootVersion = "2.0.0.M4"
-        classpath("org.junit.platform:junit-platform-gradle-plugin:$junitGradleVersion")
         classpath("org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion")
     }
 }
@@ -32,7 +27,6 @@ plugins {
 
 apply {
     plugin("org.springframework.boot")
-    plugin("org.junit.platform.gradle.plugin")
 }
 
 java {
@@ -41,6 +35,7 @@ java {
 }
 
 dependencies {
+    val assertJVersion = "3.8.0"
     compile(kotlin("stdlib"))
     compile(kotlin("reflect"))
     compile("org.springframework.boot:spring-boot-starter-actuator")
@@ -50,8 +45,6 @@ dependencies {
     testCompile("io.projectreactor:reactor-test")
     testCompile("org.springframework.restdocs:spring-restdocs-mockmvc")
     testCompile("org.assertj:assertj-core:$assertJVersion")
-    testCompile("org.junit.jupiter:junit-jupiter-api:$junitVersion")
-    testRuntime("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
 }
 
 repositories {
