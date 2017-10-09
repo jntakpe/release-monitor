@@ -35,9 +35,10 @@ java {
 }
 
 dependencies {
+    val kotlinVersion = "1.1.51"
     val assertJVersion = "3.8.0"
-    compile(kotlin("stdlib"))
-    compile(kotlin("reflect"))
+    compile(kotlin("stdlib", kotlinVersion))
+    compile(kotlin("reflect", kotlinVersion))
     compile("org.springframework.boot:spring-boot-starter-actuator")
     compile("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")
     compile("org.springframework.boot:spring-boot-starter-webflux")
@@ -51,4 +52,8 @@ repositories {
     jcenter()
     maven("https://repo.spring.io/snapshot")
     maven("https://repo.spring.io/milestone")
+}
+
+noArg {
+    annotation("org.springframework.data.mongodb.core.mapping.Document")
 }
