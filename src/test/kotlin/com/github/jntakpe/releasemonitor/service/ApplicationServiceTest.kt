@@ -44,4 +44,20 @@ class ApplicationServiceTest {
                 .expectError(DuplicateKeyException::class.java)
     }
 
+    @Test
+    fun `find all should retrieve some`() {
+        applicationService.findAll().test()
+                .expectNextCount(applicationDAO.count())
+                .recordWith { ArrayList() }
+                .consumeRecordedWith { assertThat(it).contains(applicationDAO.createMockPi(), applicationDAO.createSpringBoot()) }
+                .verifyComplete()
+    }
+
+    @Test
+    fun `find all should be empty`() {
+        applicationDAO.deleteAll()
+        applicationService.findAll().test()
+                .expectNextCount(0)
+                .verifyComplete()
+    }
 }
