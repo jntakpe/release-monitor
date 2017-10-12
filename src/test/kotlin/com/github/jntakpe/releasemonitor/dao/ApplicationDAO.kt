@@ -14,7 +14,7 @@ class ApplicationDAO(private val template: MongoTemplate) {
 
     fun insertAll() = template.insertAll(listOf(createMockPi(), createSpringBoot()))
 
-    private fun createMockPi() = Application("mockpi", "com.github.jntakpe")
+    fun createMockPi() = Application("mockpi", "com.github.jntakpe")
 
     private fun createSpringBoot() = Application("spring-boot", "com.springframework.boot")
 

@@ -8,6 +8,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.dao.DuplicateKeyException
 import org.springframework.test.context.junit4.SpringRunner
 import reactor.test.test
 
@@ -35,6 +36,12 @@ class ApplicationServiceTest {
                     assertThat(it).isEqualTo(application)
                     assertThat(initCount).isEqualTo(applicationDAO.count())
                 }
+    }
+
+    @Test
+    fun `create should fail cuz application exists`() {
+        applicationService.create(applicationDAO.createMockPi()).test()
+                .expectError(DuplicateKeyException::class.java)
     }
 
 }
