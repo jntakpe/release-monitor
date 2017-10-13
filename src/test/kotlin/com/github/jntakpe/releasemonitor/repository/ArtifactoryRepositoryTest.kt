@@ -24,7 +24,7 @@ class ArtifactoryRepositoryTest {
 
     @Test
     fun `findVersions should retrieve versions`() {
-        val app = Application("release-monitor", "com.github.jntakpe")
+        val app = Application("com.github.jntakpe", "release-monitor")
         artifactoryRepository.findVersions(app).test()
                 .consumeNextWith { assertThat(it).isNotEmpty }
                 .verifyComplete()
@@ -32,14 +32,14 @@ class ArtifactoryRepositoryTest {
 
     @Test
     fun `findVersions should fail cuz unknown application`() {
-        val app = Application("service-unknown", "com.github.jntakpe")
+        val app = Application("com.github.jntakpe", "service-unknown")
         artifactoryRepository.findVersions(app).test()
                 .verifyError(WebClientResponseException::class.java)
     }
 
     @Test
     fun `findVersions should filter maven metadata`() {
-        val app = Application("release-monitor", "com.github.jntakpe")
+        val app = Application("com.github.jntakpe", "release-monitor")
         artifactoryRepository.findVersions(app).test()
                 .consumeNextWith { assertThat(it).doesNotContain("maven-metadata.xml") }
                 .verifyComplete()

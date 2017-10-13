@@ -29,7 +29,7 @@ class ApplicationServiceTest {
     @Test
     fun `create should create a new application`() {
         val initCount = applicationDAO.count()
-        val application = Application("foo", "bar")
+        val application = Application("bar", "foo")
         applicationService.create(application).test()
                 .consumeNextWith {
                     assertThat(it.id).isNotNull()
