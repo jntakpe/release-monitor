@@ -47,8 +47,8 @@ class ApplicationServiceTest {
     @Test
     fun `find all should retrieve some`() {
         applicationService.findAll().test()
-                .expectNextCount(applicationDAO.count())
                 .recordWith { ArrayList() }
+                .expectNextCount(applicationDAO.count())
                 .consumeRecordedWith { assertThat(it).contains(applicationDAO.createMockPi(), applicationDAO.createSpringBoot()) }
                 .verifyComplete()
     }

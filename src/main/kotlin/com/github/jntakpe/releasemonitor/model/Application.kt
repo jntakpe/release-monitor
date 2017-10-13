@@ -6,7 +6,7 @@ import org.springframework.data.mongodb.core.mapping.Document
 
 @Document
 @CompoundIndex(name = "group_name", def = "{'group' : 1, 'name': 1}", unique = true)
-class Application(val name: String, val group: String, val id: ObjectId? = null) {
+data class Application(val name: String, val group: String, val id: ObjectId? = null) {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

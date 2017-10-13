@@ -1,0 +1,13 @@
+{
+  "request": {
+    "url": "/artifactory/api/storage/gradle-repo-local/com/github/jntakpe/service-unknown",
+    "method": "GET"
+  },
+  "response": {
+    "status": 404,
+    "body": "{ \"errors\" : [ { \"status\" : 404, \"message\" : \"Unable to find item\" } ] }",
+    "headers": {
+      "Content-Type": "application/json;charset=UTF-8"
+    }
+  }
+}

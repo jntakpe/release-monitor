@@ -1,0 +1,13 @@
+{
+  "request": {
+    "url": "/artifactory/api/storage/gradle-repo-local/com/github/jntakpe/release-monitor",
+    "method": "GET"
+  },
+  "response": {
+    "status": 200,
+    "body": "{ \"repo\" : \"gradle-repo-local\", \"path\" : \"\/com\/github\/jntakpe\/release-monitor\", \"created\" : \"2017-09-22T09:45:25.349Z\", \"createdBy\" : \"admin\", \"lastModified\" : \"2017-09-22T09:45:25.349Z\", \"modifiedBy\" : \"admin\", \"lastUpdated\" : \"2017-09-22T09:45:25.349Z\", \"children\" : [ { \"uri\" : \"\/0.1.0-RC1\", \"folder\" : true }, { \"uri\" : \"\/0.1.0-RC2\", \"folder\" : true }, { \"uri\" : \"\/0.1.0-RC4\", \"folder\" : true }, { \"uri\" : \"\/0.1.0-RELEASE\", \"folder\" : true }, { \"uri\" : \"\/0.1.0-SNAPSHOT\", \"folder\" : true }, { \"uri\" : \"\/0.2.0-RC0\", \"folder\" : true }, { \"uri\" : \"\/0.2.0-SNAPSHOT\", \"folder\" : true }, { \"uri\" : \"\/maven-metadata.xml\", \"folder\" : false } ], \"uri\" : \"http:\/\/localhost\/artifactory\/api\/storage\/gradle-repo-local\/com\/github\/jntakpe\/release-monitor\" }",
+    "headers": {
+      "Content-Type": "application/json;charset=UTF-8"
+    }
+  }
+}

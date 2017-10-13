@@ -15,10 +15,10 @@ class ApplicationService(private val applicationRepository: ApplicationRepositor
         private val LOGGER = loggerFor<ApplicationService>()
     }
 
-    fun create(application: Application): Mono<Application> {
-        LOGGER.info("Creating {}", application).toMono()
-        return applicationRepository.save(application)
-                .doOnSuccess { LOGGER.info("{} created", it) }
+    fun create(app: Application): Mono<Application> {
+        LOGGER.info("Creating $app").toMono()
+        return applicationRepository.save(app)
+                .doOnSuccess { LOGGER.info("$it created") }
     }
 
     fun findAll(): Flux<Application> {

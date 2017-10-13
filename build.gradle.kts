@@ -1,4 +1,5 @@
 import org.gradle.kotlin.dsl.*
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 group = "com.github.jntakpe"
 version = "0.1.0-SNAPSHOT"
@@ -10,7 +11,7 @@ buildscript {
         maven("https://repo.spring.io/milestone")
     }
     dependencies {
-        val springBootVersion = "2.0.0.M4"
+        val springBootVersion = "2.0.0.M5"
         classpath("org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion")
     }
 }
@@ -18,7 +19,7 @@ buildscript {
 plugins {
     val kotlinVersion = "1.1.51"
     val springIOVersion = "1.0.3.RELEASE"
-    kotlin("jvm")
+    kotlin("jvm") version kotlinVersion
     kotlin("plugin.noarg") version kotlinVersion
     kotlin("plugin.spring") version kotlinVersion
     kotlin("plugin.allopen") version kotlinVersion
@@ -34,10 +35,14 @@ java {
     targetCompatibility = JavaVersion.VERSION_1_8
 }
 
+val compileKotlin: KotlinCompile by tasks
+compileKotlin.kotlinOptions.jvmTarget = "1.8"
+
 dependencies {
     val kotlinVersion = "1.1.51"
     val assertJVersion = "3.8.0"
-    compile(kotlin("stdlib", kotlinVersion))
+    val wiremockVersion = "2.8.0"
+    compile(kotlin("stdlib-jre8", kotlinVersion))
     compile(kotlin("reflect", kotlinVersion))
     compile("org.springframework.boot:spring-boot-starter-actuator")
     compile("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")
@@ -46,6 +51,7 @@ dependencies {
     testCompile("io.projectreactor:reactor-test")
     testCompile("org.springframework.restdocs:spring-restdocs-mockmvc")
     testCompile("org.assertj:assertj-core:$assertJVersion")
+    testCompile("com.github.tomakehurst:wiremock:$wiremockVersion")
 }
 
 repositories {
