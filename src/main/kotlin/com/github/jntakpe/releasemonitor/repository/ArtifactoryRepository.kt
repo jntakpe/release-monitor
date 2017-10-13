@@ -21,7 +21,6 @@ class ArtifactoryRepository(private val artifactoryClient: WebClient) {
 
     fun findVersions(app: Application): Mono<List<String>> {
         LOGGER.debug("Searching $app versions")
-        println(createFolderPath(app))
         return artifactoryClient.get().uri(createFolderPath(app)).retrieve()
                 .bodyToMono(Folder::class.java)
                 .map { it.toVersions() }

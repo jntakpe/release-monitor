@@ -18,4 +18,6 @@ class ApplicationDAO(private val template: MongoTemplate) {
 
     fun createSpringBoot() = Application("com.springframework.boot", "spring-boot")
 
+    fun findAny() = template.find(Query(), Application::class.java).firstOrNull() ?: throw IllegalStateException("No app found")
+
 }

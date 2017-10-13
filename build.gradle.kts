@@ -20,9 +20,7 @@ plugins {
     val kotlinVersion = "1.1.51"
     val springIOVersion = "1.0.3.RELEASE"
     kotlin("jvm") version kotlinVersion
-    kotlin("plugin.noarg") version kotlinVersion
     kotlin("plugin.spring") version kotlinVersion
-    kotlin("plugin.allopen") version kotlinVersion
     id("io.spring.dependency-management") version springIOVersion
 }
 
@@ -58,8 +56,4 @@ repositories {
     jcenter()
     maven("https://repo.spring.io/snapshot")
     maven("https://repo.spring.io/milestone")
-}
-
-noArg {
-    annotation("org.springframework.data.mongodb.core.mapping.Document")
 }
