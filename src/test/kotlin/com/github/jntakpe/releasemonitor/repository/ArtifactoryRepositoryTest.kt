@@ -1,9 +1,10 @@
 package com.github.jntakpe.releasemonitor.repository
 
 import com.github.jntakpe.releasemonitor.model.Application
-import com.github.tomakehurst.wiremock.junit.WireMockRule
+import com.github.tomakehurst.wiremock.WireMockServer
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Rule
+import org.junit.AfterClass
+import org.junit.BeforeClass
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -16,8 +17,21 @@ import reactor.test.test
 @RunWith(SpringRunner::class)
 class ArtifactoryRepositoryTest {
 
-    @get:Rule
-    val wireMockRule = WireMockRule(8089)
+    companion object {
+        private val wiremockServer = WireMockServer(8089)
+
+        @JvmStatic
+        @BeforeClass
+        fun setup() {
+            wiremockServer.start()
+        }
+
+        @JvmStatic
+        @AfterClass
+        fun tearDown() {
+            wiremockServer.stop()
+        }
+    }
 
     @Autowired
     private lateinit var artifactoryRepository: ArtifactoryRepository
