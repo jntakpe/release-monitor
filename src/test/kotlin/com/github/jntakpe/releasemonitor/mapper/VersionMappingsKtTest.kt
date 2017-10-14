@@ -28,14 +28,32 @@ class VersionMappingsKtTest {
     }
 
     @Test
+    fun `toAppVersion should map raw string to release with suffix ignoring case`() {
+        val raw = "1.2.3-release"
+        assertThat(raw.toAppVersion()).isEqualToComparingFieldByField(AppVersion(raw, 1, 2, 3, VersionType.RELEASE))
+    }
+
+    @Test
     fun `toAppVersion should map raw string to release candidate`() {
         val raw = "1.2.3-RC1"
         assertThat(raw.toAppVersion()).isEqualToComparingFieldByField(AppVersion(raw, 1, 2, 3, VersionType.RELEASE_CANDIDATE, 1))
     }
 
     @Test
+    fun `toAppVersion should map raw string to release candidate ignoring case`() {
+        val raw = "1.2.3-rc1"
+        assertThat(raw.toAppVersion()).isEqualToComparingFieldByField(AppVersion(raw, 1, 2, 3, VersionType.RELEASE_CANDIDATE, 1))
+    }
+
+    @Test
     fun `toAppVersion should map raw string to snapshot`() {
         val raw = "0.1.0-SNAPSHOT"
+        assertThat(raw.toAppVersion()).isEqualToComparingFieldByField(AppVersion(raw, 0, 1, 0, VersionType.SNAPSHOT))
+    }
+
+    @Test
+    fun `toAppVersion should map raw string to snapshot ignoring case`() {
+        val raw = "0.1.0-snapshot"
         assertThat(raw.toAppVersion()).isEqualToComparingFieldByField(AppVersion(raw, 0, 1, 0, VersionType.SNAPSHOT))
     }
 }

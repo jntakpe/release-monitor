@@ -10,16 +10,13 @@ fun Folder.toRawVersions() = this.children.map { it.uri }.map { it.removeLeading
 
 fun String.toAppVersion(): AppVersion {
     val semver = Version.valueOf(this)
-    val versionType = semver.preReleaseVersion.toVersionType()
-    val rcNumber = if (versionType == VersionType.RELEASE_CANDIDATE) semver.preReleaseVersion.toRCNumber() else null
-    return AppVersion(this, semver.majorVersion, semver.minorVersion, semver.patchVersion, versionType, rcNumber)
+    val (type, rcNumber) = semver.preReleaseVersion.toVersionType()
+    return AppVersion(this, semver.majorVersion, semver.minorVersion, semver.patchVersion, type, rcNumber)
 }
 
 private fun String.toVersionType() = when {
-    this == "RELEASE" || this.isEmpty() -> VersionType.RELEASE
-    this.startsWith("RC") -> VersionType.RELEASE_CANDIDATE
-    this == "SNAPSHOT" -> VersionType.SNAPSHOT
+    this.equals("RELEASE", true) || this.isEmpty() -> VersionType.RELEASE to null
+    this.startsWith("RC", true) -> VersionType.RELEASE_CANDIDATE to this.filter { it.isDigit() }.toInt()
+    this.equals("SNAPSHOT", true) -> VersionType.SNAPSHOT to null
     else -> throw IllegalStateException("Unable to parse version type $this")
 }
-
-private fun String.toRCNumber() = this.removePrefix("RC").toInt()
