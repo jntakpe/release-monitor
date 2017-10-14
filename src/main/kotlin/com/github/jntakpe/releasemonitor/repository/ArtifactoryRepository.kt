@@ -23,17 +23,21 @@ class ArtifactoryRepository(private val artifactoryClient: WebClient) {
 
     fun findVersions(app: Application): Flux<AppVersion> {
         LOGGER.debug("Searching $app versions")
+        return findRawVersions(app)
+                .map { it.toAppVersion() }
+                .sort()
+                .doOnNext { LOGGER.debug("Versions $it updated") }
+    }
+
+    private fun findRawVersions(app: Application): Flux<String> {
         return artifactoryClient.get().uri(createFolderPath(app)).retrieve()
                 .bodyToMono(Folder::class.java)
                 .map { it.toRawVersions() }
                 .flatMapMany { Flux.fromIterable(it) }
                 .filter { !isMavenMetadata(it) }
-                .map { it.toAppVersion() }
-                .doOnNext { LOGGER.debug("Versions $it updated") }
     }
 
     private fun createFolderPath(app: Application) = "$STORAGE_API$GRADLE_REPO/${app.group.dotToSlash()}/${app.name}"
-
 
     private fun isMavenMetadata(input: String) = MAVEN_METADATA == input
 }

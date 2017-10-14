@@ -38,8 +38,7 @@ class ArtifactoryRepositoryTest {
 
     @Test
     fun `findVersions should retrieve versions`() {
-        val initVersionsSize = 8L
-        val versionsSizeWithoutMavenMetadata = initVersionsSize - 1
+        val versionsSizeWithoutMavenMetadata = 8L - 1
         val app = Application("com.github.jntakpe", "release-monitor")
         artifactoryRepository.findVersions(app).test()
                 .recordWith { ArrayList() }
@@ -53,6 +52,17 @@ class ArtifactoryRepositoryTest {
         val app = Application("com.github.jntakpe", "service-unknown")
         artifactoryRepository.findVersions(app).test()
                 .verifyError(WebClientResponseException::class.java)
+    }
+
+    @Test
+    fun `findVersions should retrieve versions sorted`() {
+        val versionsSizeWithoutMavenMetadata = 8L - 1
+        val app = Application("com.github.jntakpe", "release-monitor")
+        artifactoryRepository.findVersions(app).test()
+                .recordWith { ArrayList() }
+                .expectNextCount(versionsSizeWithoutMavenMetadata)
+                .consumeRecordedWith { assertThat(ArrayList(it)).isSorted() }
+                .verifyComplete()
     }
 
 }
