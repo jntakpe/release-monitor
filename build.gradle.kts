@@ -38,6 +38,7 @@ compileKotlin.kotlinOptions.jvmTarget = "1.8"
 
 dependencies {
     val kotlinVersion = "1.1.51"
+    val javaSemverVersion = "0.9.0"
     val assertJVersion = "3.8.0"
     val wiremockVersion = "2.8.0"
     compile(kotlin("stdlib-jre8", kotlinVersion))
@@ -45,6 +46,7 @@ dependencies {
     compile("org.springframework.boot:spring-boot-starter-actuator")
     compile("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")
     compile("org.springframework.boot:spring-boot-starter-webflux")
+    compile("com.github.zafarkhaja:java-semver:$javaSemverVersion")
     testCompile("org.springframework.boot:spring-boot-starter-test")
     testCompile("io.projectreactor:reactor-test")
     testCompile("org.springframework.restdocs:spring-restdocs-mockmvc")

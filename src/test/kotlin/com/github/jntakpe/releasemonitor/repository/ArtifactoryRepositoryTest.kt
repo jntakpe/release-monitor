@@ -38,9 +38,13 @@ class ArtifactoryRepositoryTest {
 
     @Test
     fun `findVersions should retrieve versions`() {
+        val initVersionsSize = 8L
+        val versionsSizeWithoutMavenMetadata = initVersionsSize - 1
         val app = Application("com.github.jntakpe", "release-monitor")
         artifactoryRepository.findVersions(app).test()
-                .consumeNextWith { assertThat(it).isNotEmpty }
+                .recordWith { ArrayList() }
+                .expectNextCount(versionsSizeWithoutMavenMetadata)
+                .consumeRecordedWith { assertThat(it.map { it.raw }).contains("0.1.0-RC1", "0.1.0-SNAPSHOT") }
                 .verifyComplete()
     }
 
@@ -49,14 +53,6 @@ class ArtifactoryRepositoryTest {
         val app = Application("com.github.jntakpe", "service-unknown")
         artifactoryRepository.findVersions(app).test()
                 .verifyError(WebClientResponseException::class.java)
-    }
-
-    @Test
-    fun `findVersions should filter maven metadata`() {
-        val app = Application("com.github.jntakpe", "release-monitor")
-        artifactoryRepository.findVersions(app).test()
-                .consumeNextWith { assertThat(it).doesNotContain("maven-metadata.xml") }
-                .verifyComplete()
     }
 
 }
