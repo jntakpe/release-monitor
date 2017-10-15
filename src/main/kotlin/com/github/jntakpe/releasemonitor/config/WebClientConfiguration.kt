@@ -22,7 +22,7 @@ class WebClientConfiguration(private val artifactoryProperties: ArtifactoryPrope
     private fun buildBasicHeaderValue(): String {
         val credentials = artifactoryProperties.credentials
         val concat = "${credentials.username}:${credentials.password}"
-        return "Basic ${String(Base64.getEncoder().encode(concat.toByteArray()))}"
+        return "Basic ${Base64.getEncoder().encodeToString(concat.toByteArray())}"
     }
 
 }
