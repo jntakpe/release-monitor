@@ -1,6 +1,5 @@
 artifactory:
   host: http://localhost:8089
-  baseApi: /artifactory/api
   gradleRepository: /gradle-repo-local
   credentials:
     username: jdoe

@@ -12,12 +12,13 @@ class WebClientConfiguration(private val artifactoryProperties: ArtifactoryPrope
     companion object {
         private val AUTHORIZATION_HEADER = "Authorization"
         private val BASE_API = "/artifactory/api"
+        private val STORAGE_API = "/storage"
     }
 
     @Bean
     fun artifactoryClient() = WebClient.builder().baseUrl(baseUrl()).defaultHeader(AUTHORIZATION_HEADER, buildBasicHeaderValue()).build()
 
-    private fun baseUrl() = artifactoryProperties.host + BASE_API
+    private fun baseUrl() = artifactoryProperties.host + BASE_API + STORAGE_API + artifactoryProperties.gradleRepository
 
     private fun buildBasicHeaderValue(): String {
         val credentials = artifactoryProperties.credentials

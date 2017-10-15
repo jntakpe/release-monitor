@@ -1,13 +1,15 @@
 package com.github.jntakpe.releasemonitor.config.properties
 
-import javax.validation.constraints.NotBlank
+import org.springframework.validation.annotation.Validated
+import javax.validation.constraints.NotNull
 
+@Validated
 class ArtifactoryCredentialsProperties {
 
-    @NotBlank
-    var username: String = ""
+    @NotNull
+    lateinit var username: String
 
-    @NotBlank
-    var password: String = ""
+    @NotNull
+    lateinit var password: String
 
 }

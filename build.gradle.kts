@@ -34,7 +34,9 @@ java {
 }
 
 val compileKotlin: KotlinCompile by tasks
+val compileTestKotlin: KotlinCompile by tasks
 compileKotlin.kotlinOptions.jvmTarget = "1.8"
+compileTestKotlin.kotlinOptions.jvmTarget = "1.8"
 
 dependencies {
     val kotlinVersion = "1.1.51"
@@ -49,7 +51,6 @@ dependencies {
     compile("com.github.zafarkhaja:java-semver:$javaSemverVersion")
     testCompile("org.springframework.boot:spring-boot-starter-test")
     testCompile("io.projectreactor:reactor-test")
-    testCompile("org.springframework.restdocs:spring-restdocs-mockmvc")
     testCompile("org.assertj:assertj-core:$assertJVersion")
     testCompile("com.github.tomakehurst:wiremock:$wiremockVersion")
 }

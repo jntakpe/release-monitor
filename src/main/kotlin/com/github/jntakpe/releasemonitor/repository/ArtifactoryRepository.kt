@@ -15,8 +15,6 @@ import reactor.core.publisher.Flux
 class ArtifactoryRepository(private val artifactoryClient: WebClient) {
 
     companion object {
-        private val STORAGE_API = "/storage"
-        private val GRADLE_REPO = "/gradle-repo-local"
         private val MAVEN_METADATA = "maven-metadata.xml"
         private val LOGGER = loggerFor<ArtifactoryRepository>()
     }
@@ -30,14 +28,14 @@ class ArtifactoryRepository(private val artifactoryClient: WebClient) {
     }
 
     private fun findRawVersions(app: Application): Flux<String> {
-        return artifactoryClient.get().uri(createFolderPath(app)).retrieve()
+        return artifactoryClient.get().uri(folderPath(app)).retrieve()
                 .bodyToMono(Folder::class.java)
                 .map { it.toRawVersions() }
                 .flatMapMany { Flux.fromIterable(it) }
                 .filter { !isMavenMetadata(it) }
     }
 
-    private fun createFolderPath(app: Application) = "$STORAGE_API$GRADLE_REPO/${app.group.dotToSlash()}/${app.name}"
+    private fun folderPath(app: Application) = "/${app.group.dotToSlash()}/${app.name}"
 
     private fun isMavenMetadata(input: String) = MAVEN_METADATA == input
 }

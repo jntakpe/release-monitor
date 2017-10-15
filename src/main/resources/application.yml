@@ -2,5 +2,5 @@ artifactory:
   host: http://depdevops-artifactory.westeurope.cloudapp.azure.com
   gradleRepository: /gradle-repo-local
   credentials:
-    username: admin
-    password: AP2ev57LNb6KdvcK8PEvPnZ7Y9Gq9vvWX51G4b
+    username: some_username
+    password: some_password

@@ -3,21 +3,19 @@ package com.github.jntakpe.releasemonitor.config.properties
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.stereotype.Component
 import org.springframework.validation.annotation.Validated
-import javax.validation.Valid
-import javax.validation.constraints.NotBlank
+import javax.validation.constraints.NotNull
 
 @Component
 @Validated
 @ConfigurationProperties("artifactory")
 class ArtifactoryProperties {
 
-    @NotBlank
-    var host: String = ""
+    @NotNull
+    lateinit var host: String
 
-    @NotBlank
-    var gradleRepository: String = ""
+    @NotNull
+    lateinit var gradleRepository: String
 
-    @Valid
     var credentials: ArtifactoryCredentialsProperties = ArtifactoryCredentialsProperties()
 
 }
