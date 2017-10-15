@@ -1,5 +1,5 @@
 package com.github.jntakpe.releasemonitor.utils
 
-fun String.dotToSlash() = this.replace(".", "/")
+fun String.dotToSlash() = replace(".", "/")
 
-fun String.removeLeadingSlash() = this.replaceFirst("/", "")
+fun String.removeLeadingSlash() = replaceFirst("/", "")
