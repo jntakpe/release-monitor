@@ -67,6 +67,23 @@ class ApplicationServiceTest {
                 .verifyError(EmptyResultDataAccessException::class.java)
     }
 
+    @Test
+    fun `delete should remove application`() {
+        val initCount = applicationDAO.count()
+        val app = applicationDAO.findAny()
+        applicationService.delete(app.id!!).test()
+                .consumeNextWith {
+                    assertThat(applicationDAO.count()).isEqualTo(initCount - 1)
+                    assertThat(applicationDAO.findAll()).doesNotContain(app)
+                }
+                .verifyComplete()
+    }
+
+    @Test
+    fun `delete should fail if id missing`() {
+        applicationService.delete(ObjectId()).test()
+                .verifyError(EmptyResultDataAccessException::class.java)
+    }
 
     @Test
     fun `find all should retrieve some`() {

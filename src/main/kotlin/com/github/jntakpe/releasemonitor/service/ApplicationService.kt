@@ -24,11 +24,19 @@ class ApplicationService(private val applicationRepository: ApplicationRepositor
     }
 
     fun update(id: ObjectId, app: Application): Mono<Application> {
-        LOGGER.info("Updating $app")
         return findById(id)
                 .switchIfEmpty(errorIfEmpty(id))
+                .doOnNext { LOGGER.info("Updating $app") }
                 .flatMap { applicationRepository.save(app) }
                 .doOnSuccess { LOGGER.info("$it updated") }
+    }
+
+    fun delete(id: ObjectId): Mono<Application> {
+        return findById(id)
+                .switchIfEmpty(errorIfEmpty(id))
+                .doOnNext { LOGGER.info("Deleting $it") }
+                .flatMap { a -> applicationRepository.delete(a).then(a.toMono()) }
+                .doOnSuccess { LOGGER.info("$it deleted") }
     }
 
     fun findAll(): Flux<Application> {
@@ -40,13 +48,13 @@ class ApplicationService(private val applicationRepository: ApplicationRepositor
     private fun findById(id: ObjectId): Mono<Application> {
         LOGGER.debug("Searching application with id {}", id)
         return applicationRepository.findById(id)
-                .doOnSuccess { LOGGER.debug("$it retrieved with id $id") }
+                .doOnNext { LOGGER.debug("$it retrieved with id $id") }
     }
 
     private fun errorIfEmpty(id: ObjectId): Mono<Application> {
         val message = "Unable to find application matching id $id"
-        LOGGER.warn(message)
-        return Mono.error(EmptyResultDataAccessException(message, 1))
+        return Mono.error<Application>(EmptyResultDataAccessException(message, 1))
+                .doOnError { LOGGER.warn(message) }
     }
 
 }

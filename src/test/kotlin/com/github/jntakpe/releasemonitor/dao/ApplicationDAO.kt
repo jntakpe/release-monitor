@@ -20,4 +20,5 @@ class ApplicationDAO(private val template: MongoTemplate) {
 
     fun findAny() = template.find(Query(), Application::class.java).firstOrNull() ?: throw IllegalStateException("No app found")
 
+    fun findAll() = template.findAll(Application::class.java)
 }
