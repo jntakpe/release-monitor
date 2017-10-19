@@ -18,8 +18,9 @@ class ApplicationService(private val applicationRepository: ApplicationRepositor
     }
 
     fun create(app: Application): Mono<Application> {
-        LOGGER.info("Creating $app").toMono()
-        return applicationRepository.save(app)
+        return Mono.just(app)
+                .doOnNext { LOGGER.info("Creating $it") }
+                .flatMap { applicationRepository.save(it) }
                 .doOnSuccess { LOGGER.info("$it created") }
     }
 
@@ -40,21 +41,22 @@ class ApplicationService(private val applicationRepository: ApplicationRepositor
     }
 
     fun findAll(): Flux<Application> {
-        LOGGER.debug("Searching all applications")
-        return applicationRepository.findAll()
+        return Mono.just(true)
+                .doOnNext { LOGGER.debug("Searching all applications") }
+                .flatMapMany { applicationRepository.findAll() }
                 .doOnComplete { LOGGER.debug("All applications retrieved") }
     }
 
     private fun findById(id: ObjectId): Mono<Application> {
-        LOGGER.debug("Searching application with id {}", id)
-        return applicationRepository.findById(id)
+        return Mono.just(id)
+                .doOnNext { LOGGER.debug("Searching application with id $it") }
+                .flatMap { applicationRepository.findById(it) }
                 .doOnNext { LOGGER.debug("$it retrieved with id $id") }
     }
 
     private fun errorIfEmpty(id: ObjectId): Mono<Application> {
-        val message = "Unable to find application matching id $id"
-        return Mono.error<Application>(EmptyResultDataAccessException(message, 1))
-                .doOnError { LOGGER.warn(message) }
+        return Mono.error<Application>(EmptyResultDataAccessException("Unable to find application matching id $id", 1))
+                .doOnError { LOGGER.warn(it.message) }
     }
 
 }
