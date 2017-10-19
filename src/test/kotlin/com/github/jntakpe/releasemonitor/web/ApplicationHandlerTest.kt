@@ -1,9 +1,11 @@
 package com.github.jntakpe.releasemonitor.web
 
 import com.github.jntakpe.releasemonitor.dao.ApplicationDAO
+import com.github.jntakpe.releasemonitor.mapper.toDTO
 import com.github.jntakpe.releasemonitor.model.Application
 import com.github.jntakpe.releasemonitor.model.api.ApplicationDTO
 import org.assertj.core.api.Assertions.assertThat
+import org.bson.types.ObjectId
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -57,4 +59,32 @@ class ApplicationHandlerTest {
                 .exchange()
                 .expectStatus().is5xxServerError
     }
+
+    @Test
+    fun `update should update existing`() {
+        val name = "updated"
+        val input = applicationDAO.findAny().copy(name = name).toDTO()
+        client.put()
+                .uri("$API$APPLICATIONS/{id}", input.id)
+                .syncBody(input)
+                .exchange()
+                .expectStatus().isOk
+                .expectHeader().contentType(MediaType.APPLICATION_JSON_UTF8)
+                .expectBody(ApplicationDTO::class.java).consumeWith<Nothing?> {
+            val app = it.responseBody
+            assertThat(app).isNotNull()
+            assertThat(app.let { name }).isEqualTo(name)
+            assertThat(app).isEqualToIgnoringGivenFields(input, "name")
+        }
+    }
+
+    @Test
+    fun `update shoudl fail if wrong id`() {
+        client.put()
+                .uri("$API$APPLICATIONS/{id}", ObjectId())
+                .syncBody(applicationDAO.findAny().toDTO())
+                .exchange()
+                .expectStatus().is5xxServerError
+    }
+
 }

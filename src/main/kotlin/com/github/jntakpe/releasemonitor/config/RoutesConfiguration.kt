@@ -16,6 +16,7 @@ class RoutesConfiguration(private val applicationHandler: ApplicationHandler) {
         API.and(accept(MediaType.APPLICATION_JSON)).nest {
             APPLICATIONS.nest {
                 POST("/", applicationHandler::create)
+                PUT("/{id}", applicationHandler::update)
             }
         }
     }

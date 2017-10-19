@@ -12,6 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.dao.DuplicateKeyException
 import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.test.context.junit4.SpringRunner
+import reactor.test.StepVerifier
 import reactor.test.test
 
 @SpringBootTest
@@ -65,6 +66,21 @@ class ApplicationServiceTest {
     fun `update should fail if id missing`() {
         applicationService.update(ObjectId(), applicationDAO.findAny()).test()
                 .verifyError(EmptyResultDataAccessException::class.java)
+    }
+
+    @Test
+    fun `update should fail if id does not match`() {
+        val app = applicationDAO.findAny()
+        applicationService.update(app.id!!, app.copy(id = ObjectId(), name = "updated")).test()
+                .verifyError(AssertionError::class.java)
+    }
+
+    @Test
+    fun `update should set id if null`() {
+        val app = applicationDAO.findAny()
+        StepVerifier.create(applicationService.update(app.id!!, app.copy(id = null, name = "updated")))
+                .consumeNextWith { a -> assertThat(a.id).isEqualTo(app.id) }
+                .verifyComplete()
     }
 
     @Test

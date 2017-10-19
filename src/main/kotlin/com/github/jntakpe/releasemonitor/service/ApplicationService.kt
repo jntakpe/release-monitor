@@ -26,9 +26,10 @@ class ApplicationService(private val applicationRepository: ApplicationRepositor
 
     fun update(id: ObjectId, app: Application): Mono<Application> {
         return findById(id)
+                .map { checkIdMatches(id, app) }
                 .switchIfEmpty(errorIfEmpty(id))
-                .doOnNext { LOGGER.info("Updating $app") }
-                .flatMap { applicationRepository.save(app) }
+                .doOnNext { LOGGER.info("Updating $it") }
+                .flatMap { applicationRepository.save(it) }
                 .doOnSuccess { LOGGER.info("$it updated") }
     }
 
@@ -55,8 +56,13 @@ class ApplicationService(private val applicationRepository: ApplicationRepositor
     }
 
     private fun errorIfEmpty(id: ObjectId): Mono<Application> {
-        return Mono.error<Application>(EmptyResultDataAccessException("Unable to find application matching id $id", 1))
+        return EmptyResultDataAccessException("Unable to find application matching id $id", 1).toMono<Application>()
                 .doOnError { LOGGER.warn(it.message) }
+    }
+
+    private fun checkIdMatches(id: ObjectId, app: Application): Application {
+        assert(app.id == null || app.id == id, { "Id $id doesn't match application's $app" })
+        return app.copy(id = id)
     }
 
 }

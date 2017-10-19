@@ -4,6 +4,7 @@ import com.github.jntakpe.releasemonitor.mapper.toDTO
 import com.github.jntakpe.releasemonitor.mapper.toEntity
 import com.github.jntakpe.releasemonitor.model.api.ApplicationDTO
 import com.github.jntakpe.releasemonitor.service.ApplicationService
+import org.bson.types.ObjectId
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.function.server.ServerResponse
@@ -19,6 +20,14 @@ class ApplicationHandler(private val applicationService: ApplicationService) {
                 .flatMap { applicationService.create(it) }
                 .map { it.toDTO() }
                 .flatMap { ServerResponse.created(URI.create("$API$APPLICATIONS/${it.id}")).syncBody(it) }
+    }
+
+    fun update(request: ServerRequest): Mono<ServerResponse> {
+        return request.bodyToMono(ApplicationDTO::class.java)
+                .map { it.toEntity() }
+                .flatMap { applicationService.update(ObjectId(request.pathVariable("id")), it) }
+                .map { it.toDTO() }
+                .flatMap { ServerResponse.ok().syncBody(it) }
     }
 
 }
