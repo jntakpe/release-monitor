@@ -17,6 +17,7 @@ class RoutesConfiguration(private val applicationHandler: ApplicationHandler) {
             APPLICATIONS.nest {
                 POST("/", applicationHandler::create)
                 PUT("/{id}", applicationHandler::update)
+                DELETE("/{id}", applicationHandler::delete)
             }
         }
     }

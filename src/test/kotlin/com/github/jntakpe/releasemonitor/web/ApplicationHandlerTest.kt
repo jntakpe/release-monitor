@@ -38,6 +38,7 @@ class ApplicationHandlerTest {
     @Test
     fun `create should create a new application`() {
         val input = Application("foo", "bar")
+        val initCount = applicationDAO.count()
         client.post()
                 .uri("$API$APPLICATIONS")
                 .syncBody(input)
@@ -48,6 +49,7 @@ class ApplicationHandlerTest {
             val app = it.responseBody
             assertThat(app?.id).isNotNull()
             assertThat(app).isEqualToIgnoringGivenFields(input, ApplicationDTO::id.name)
+            assertThat(applicationDAO.count()).isEqualTo(initCount + 1)
         }
     }
 
@@ -75,11 +77,12 @@ class ApplicationHandlerTest {
             assertThat(app).isNotNull()
             assertThat(app.let { name }).isEqualTo(name)
             assertThat(app).isEqualToIgnoringGivenFields(input, "name")
+            assertThat(applicationDAO.findById(ObjectId(input.id)).name).isEqualTo(name)
         }
     }
 
     @Test
-    fun `update shoudl fail if wrong id`() {
+    fun `update should fail if wrong id`() {
         client.put()
                 .uri("$API$APPLICATIONS/{id}", ObjectId())
                 .syncBody(applicationDAO.findAny().toDTO())
@@ -87,4 +90,14 @@ class ApplicationHandlerTest {
                 .expectStatus().is5xxServerError
     }
 
+    @Test
+    fun `delete should delete`() {
+        val initCount = applicationDAO.count()
+        val id = applicationDAO.findAny().id.toString()
+        client.delete()
+                .uri("$API$APPLICATIONS/{id}", id)
+                .exchange()
+                .expectStatus().isNoContent
+                .expectBody().consumeWith { assertThat(applicationDAO.count()).isEqualTo(initCount - 1) }
+    }
 }

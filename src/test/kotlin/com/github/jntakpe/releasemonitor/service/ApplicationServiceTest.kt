@@ -12,7 +12,6 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.dao.DuplicateKeyException
 import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.test.context.junit4.SpringRunner
-import reactor.test.StepVerifier
 import reactor.test.test
 
 @SpringBootTest
@@ -78,7 +77,7 @@ class ApplicationServiceTest {
     @Test
     fun `update should set id if null`() {
         val app = applicationDAO.findAny()
-        StepVerifier.create(applicationService.update(app.id!!, app.copy(id = null, name = "updated")))
+        applicationService.update(app.id!!, app.copy(id = null, name = "updated")).test()
                 .consumeNextWith { a -> assertThat(a.id).isEqualTo(app.id) }
                 .verifyComplete()
     }
