@@ -36,6 +36,32 @@ class ApplicationHandlerTest {
     }
 
     @Test
+    fun `find all should find all`() {
+        client.get()
+                .uri("$API$APPLICATIONS")
+                .exchange()
+                .expectStatus().isOk
+                .expectBodyList(ApplicationDTO::class.java).consumeWith<Nothing?> {
+            val apps = it.responseBody
+            assertThat(apps).isNotEmpty
+            assertThat(apps).hasSize(applicationDAO.count().toInt())
+        }
+    }
+
+    @Test
+    fun `find all should find none`() {
+        applicationDAO.deleteAll()
+        client.get()
+                .uri("$API$APPLICATIONS")
+                .exchange()
+                .expectStatus().isOk
+                .expectBodyList(ApplicationDTO::class.java).consumeWith<Nothing?> {
+            val apps = it.responseBody
+            assertThat(apps).isEmpty()
+        }
+    }
+
+    @Test
     fun `create should create a new application`() {
         val input = Application("foo", "bar")
         val initCount = applicationDAO.count()
@@ -100,4 +126,5 @@ class ApplicationHandlerTest {
                 .expectStatus().isNoContent
                 .expectBody().consumeWith { assertThat(applicationDAO.count()).isEqualTo(initCount - 1) }
     }
+
 }

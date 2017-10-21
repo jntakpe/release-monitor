@@ -15,6 +15,7 @@ class RoutesConfiguration(private val applicationHandler: ApplicationHandler) {
     fun apiRouter() = router {
         API.and(accept(MediaType.APPLICATION_JSON)).nest {
             APPLICATIONS.nest {
+                GET("/", applicationHandler::findAll)
                 POST("/", applicationHandler::create)
                 PUT("/{id}", applicationHandler::update)
                 DELETE("/{id}", applicationHandler::delete)
