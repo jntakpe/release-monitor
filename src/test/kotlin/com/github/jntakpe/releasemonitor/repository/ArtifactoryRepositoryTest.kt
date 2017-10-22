@@ -33,8 +33,7 @@ class ArtifactoryRepositoryTest {
         }
     }
 
-    @Autowired
-    private lateinit var artifactoryRepository: ArtifactoryRepository
+    @Autowired private lateinit var artifactoryRepository: ArtifactoryRepository
 
     @Test
     fun `findVersions should retrieve versions`() {

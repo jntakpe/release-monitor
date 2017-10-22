@@ -2,9 +2,12 @@ package com.github.jntakpe.releasemonitor.service
 
 import com.github.jntakpe.releasemonitor.dao.ApplicationDAO
 import com.github.jntakpe.releasemonitor.model.Application
+import com.github.tomakehurst.wiremock.WireMockServer
 import org.assertj.core.api.Assertions.assertThat
 import org.bson.types.ObjectId
+import org.junit.AfterClass
 import org.junit.Before
+import org.junit.BeforeClass
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -17,6 +20,22 @@ import reactor.test.test
 @SpringBootTest
 @RunWith(SpringRunner::class)
 class ApplicationServiceTest {
+
+    companion object {
+        private val wiremockServer = WireMockServer(8089)
+
+        @JvmStatic
+        @BeforeClass
+        fun setup() {
+            wiremockServer.start()
+        }
+
+        @JvmStatic
+        @AfterClass
+        fun tearDown() {
+            wiremockServer.stop()
+        }
+    }
 
     @Autowired lateinit private var applicationService: ApplicationService
 
@@ -105,7 +124,7 @@ class ApplicationServiceTest {
         applicationService.findAll().test()
                 .recordWith { ArrayList() }
                 .expectNextCount(applicationDAO.count())
-                .consumeRecordedWith { assertThat(it).contains(applicationDAO.createMockPi(), applicationDAO.createSpringBoot()) }
+                .consumeRecordedWith { assertThat(it).contains(applicationDAO.createMockPi(), applicationDAO.createReleaseMonitor()) }
                 .verifyComplete()
     }
 
@@ -114,6 +133,31 @@ class ApplicationServiceTest {
         applicationDAO.deleteAll()
         applicationService.findAll().test()
                 .expectNextCount(0)
+                .verifyComplete()
+    }
+
+    @Test
+    fun `monitor should retrieve some with versions`() {
+        val count = applicationDAO.count()
+        applicationService.monitor().test()
+                .recordWith { ArrayList() }
+                .expectNextCount(count)
+                .consumeRecordedWith {
+                    assertThat(it).hasSize(count.toInt())
+                    it.map { it.versions }.forEach { assertThat(it).isNotEmpty }
+                }
+                .verifyComplete()
+    }
+
+    @Test
+    fun `monitor should update versions`() {
+        applicationService.monitor().test()
+                .recordWith { ArrayList() }
+                .expectNextCount(applicationDAO.count())
+                .consumeRecordedWith {
+                    assertThat(it).isNotEmpty
+                    it.forEach { assertThat(it.versions).isEqualTo(applicationDAO.findById(it.id!!).versions) }
+                }
                 .verifyComplete()
     }
 }

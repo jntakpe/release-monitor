@@ -1,0 +1,13 @@
+{
+  "request": {
+    "url": "/artifactory/api/storage/gradle-repo-local/com/github/jntakpe/mockpi",
+    "method": "GET"
+  },
+  "response": {
+    "status": 200,
+    "body": "{\"repo\":\"gradle-repo-local\",\"path\":\"\/com\/github\/jntakpe\/mockpi\",\"created\":\"2017-09-22T09:45:25.349Z\",\"createdBy\":\"admin\",\"lastModified\":\"2017-09-22T09:45:25.349Z\",\"modifiedBy\":\"admin\",\"lastUpdated\":\"2017-09-22T09:45:25.349Z\",\"children\":[{\"uri\":\"\/1.1.0-SNAPSHOT\",\"folder\":true},{\"uri\":\"\/1.0.0-RELEASE\",\"folder\":true},{\"uri\":\"\/1.0.0-RC1\",\"folder\":true},{\"uri\":\"\/1.0.0-RC2\",\"folder\":true},{\"uri\":\"\/maven-metadata.xml\",\"folder\":false}],\"uri\":\"http:\/\/localhost\/artifactory\/api\/storage\/gradle-repo-local\/com\/github\/jntakpe\/mockpi\"}",
+    "headers": {
+      "Content-Type": "application/json;charset=UTF-8"
+    }
+  }
+}

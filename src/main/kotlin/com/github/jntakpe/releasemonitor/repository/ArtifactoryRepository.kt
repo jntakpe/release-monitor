@@ -24,7 +24,7 @@ class ArtifactoryRepository(private val artifactoryClient: WebClient) {
         return findRawVersions(app)
                 .map { it.toAppVersion() }
                 .sort()
-                .doOnNext { LOGGER.debug("Versions $it updated") }
+                .doOnNext { LOGGER.debug("Versions $it retrieved") }
     }
 
     private fun findRawVersions(app: Application): Flux<String> {

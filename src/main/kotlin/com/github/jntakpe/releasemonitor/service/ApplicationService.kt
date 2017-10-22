@@ -1,7 +1,9 @@
 package com.github.jntakpe.releasemonitor.service
 
+import com.github.jntakpe.releasemonitor.model.AppVersion
 import com.github.jntakpe.releasemonitor.model.Application
 import com.github.jntakpe.releasemonitor.repository.ApplicationRepository
+import com.github.jntakpe.releasemonitor.repository.ArtifactoryRepository
 import com.github.jntakpe.releasemonitor.utils.loggerFor
 import org.bson.types.ObjectId
 import org.springframework.dao.EmptyResultDataAccessException
@@ -9,9 +11,10 @@ import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.core.publisher.toMono
+import java.util.stream.Collectors
 
 @Service
-class ApplicationService(private val applicationRepository: ApplicationRepository) {
+class ApplicationService(private val applicationRepository: ApplicationRepository, private val artifactoryRepository: ArtifactoryRepository) {
 
     companion object {
         private val LOGGER = loggerFor<ApplicationService>()
@@ -46,6 +49,23 @@ class ApplicationService(private val applicationRepository: ApplicationRepositor
                 .doOnNext { LOGGER.debug("Searching all applications") }
                 .flatMapMany { applicationRepository.findAll() }
                 .doOnComplete { LOGGER.debug("All applications retrieved") }
+    }
+
+    fun monitor() = findAll().flatMap { appWithVersions(it) }
+
+    private fun appWithVersions(app: Application): Mono<Application> {
+        return artifactoryRepository.findVersions(app)
+                .collect(Collectors.toList())
+                .flatMap { updateVersionsIfNeeded(app, it) }
+    }
+
+    private fun updateVersionsIfNeeded(existing: Application, versions: List<AppVersion>): Mono<Application> {
+        if (existing.versions == versions) {
+            return Mono.just(existing)
+        }
+        LOGGER.info("Update $existing versions to $versions")
+        return applicationRepository.save(existing.copy(versions = versions))
+                .doOnSuccess { LOGGER.info("$it versions updated") }
     }
 
     private fun findById(id: ObjectId): Mono<Application> {
