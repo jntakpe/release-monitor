@@ -24,4 +24,7 @@ data class Application(val group: String, val name: String, val versions: List<A
         return result
     }
 
+    override fun toString(): String {
+        return "Application(name=$name)"
+    }
 }

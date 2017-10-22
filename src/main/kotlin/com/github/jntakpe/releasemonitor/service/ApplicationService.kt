@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.core.publisher.toMono
+import java.time.Duration
 import java.util.stream.Collectors
 
 @Service
@@ -51,7 +52,11 @@ class ApplicationService(private val applicationRepository: ApplicationRepositor
                 .doOnComplete { LOGGER.debug("All applications retrieved") }
     }
 
-    fun monitor() = findAll().flatMap { appWithVersions(it) }
+    fun monitor(): Flux<Application> {
+        return Flux.interval(Duration.ZERO, Duration.ofSeconds(10))
+                .flatMap { findAll() }
+                .flatMap { appWithVersions(it) }
+    }
 
     private fun appWithVersions(app: Application): Mono<Application> {
         return artifactoryRepository.findVersions(app)

@@ -15,7 +15,10 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.dao.DuplicateKeyException
 import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.test.context.junit4.SpringRunner
+import reactor.test.StepVerifier
 import reactor.test.test
+import java.time.Duration
+import java.util.function.Consumer
 
 @SpringBootTest
 @RunWith(SpringRunner::class)
@@ -139,25 +142,54 @@ class ApplicationServiceTest {
     @Test
     fun `monitor should retrieve some with versions`() {
         val count = applicationDAO.count()
-        applicationService.monitor().test()
+        StepVerifier.withVirtualTime { applicationService.monitor() }
+                .expectSubscription()
+                .expectNoEvent(Duration.ZERO)
                 .recordWith { ArrayList() }
                 .expectNextCount(count)
                 .consumeRecordedWith {
                     assertThat(it).hasSize(count.toInt())
                     it.map { it.versions }.forEach { assertThat(it).isNotEmpty }
                 }
-                .verifyComplete()
+                .thenCancel()
+                .verify()
     }
 
     @Test
     fun `monitor should update versions`() {
-        applicationService.monitor().test()
+        StepVerifier.withVirtualTime { applicationService.monitor() }
+                .expectSubscription()
+                .expectNoEvent(Duration.ZERO)
                 .recordWith { ArrayList() }
                 .expectNextCount(applicationDAO.count())
                 .consumeRecordedWith {
                     assertThat(it).isNotEmpty
                     it.forEach { assertThat(it.versions).isEqualTo(applicationDAO.findById(it.id!!).versions) }
                 }
-                .verifyComplete()
+                .thenCancel()
+                .verify()
     }
+
+    @Test
+    fun `monitor should refresh applications at fixed interval`() {
+        StepVerifier.withVirtualTime { applicationService.monitor() }
+                .expectSubscription()
+                .verifyWithDelayCouple()
+                .verifyWithDelayCouple(Duration.ofSeconds(10))
+                .verifyWithDelayCouple(Duration.ofSeconds(10))
+                .thenCancel()
+                .verify()
+    }
+
+    private fun StepVerifier.Step<Application>.verifyWithDelayCouple(delay: Duration = Duration.ZERO): StepVerifier.Step<Application> {
+        val consumer = Consumer<Application> {
+            assertThat(it).isNotNull()
+            assertThat(applicationDAO.createMockPi() == it || applicationDAO.createReleaseMonitor() == it).isTrue()
+            assertThat(it.versions).isNotEmpty
+        }
+        return this.expectNoEvent(delay)
+                .consumeNextWith(consumer)
+                .consumeNextWith(consumer)
+    }
+
 }
