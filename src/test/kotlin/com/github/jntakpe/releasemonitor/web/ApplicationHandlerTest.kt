@@ -4,12 +4,9 @@ import com.github.jntakpe.releasemonitor.dao.ApplicationDAO
 import com.github.jntakpe.releasemonitor.mapper.toDTO
 import com.github.jntakpe.releasemonitor.model.Application
 import com.github.jntakpe.releasemonitor.model.api.ApplicationDTO
-import com.github.tomakehurst.wiremock.WireMockServer
 import org.assertj.core.api.Assertions.assertThat
 import org.bson.types.ObjectId
-import org.junit.AfterClass
 import org.junit.Before
-import org.junit.BeforeClass
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -24,22 +21,6 @@ import java.time.Duration
 @RunWith(SpringRunner::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class ApplicationHandlerTest {
-
-    companion object {
-        private val wiremockServer = WireMockServer(8089)
-
-        @JvmStatic
-        @BeforeClass
-        fun setupClass() {
-            wiremockServer.start()
-        }
-
-        @JvmStatic
-        @AfterClass
-        fun tearDown() {
-            wiremockServer.stop()
-        }
-    }
 
     @LocalServerPort private var port: Int? = null
 
