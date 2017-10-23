@@ -181,6 +181,16 @@ class ApplicationServiceTest {
                 .verify()
     }
 
+    @Test
+    fun `monitor should not retrieve any application`() {
+        applicationDAO.deleteAll()
+        applicationService.monitor().test()
+                .expectSubscription()
+                .expectNoEvent(Duration.ofSeconds(1))
+                .thenCancel()
+                .verify()
+    }
+
     private fun StepVerifier.Step<Application>.verifyWithDelayCouple(delay: Duration = Duration.ZERO): StepVerifier.Step<Application> {
         val consumer = Consumer<Application> {
             assertThat(it).isNotNull()

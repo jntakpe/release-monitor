@@ -13,12 +13,17 @@ class RoutesConfiguration(private val applicationHandler: ApplicationHandler) {
 
     @Bean
     fun apiRouter() = router {
-        API.and(accept(MediaType.APPLICATION_JSON)).nest {
+        API.nest {
             APPLICATIONS.nest {
-                GET("/", applicationHandler::findAll)
-                POST("/", applicationHandler::create)
-                PUT("/{id}", applicationHandler::update)
-                DELETE("/{id}", applicationHandler::delete)
+                accept(MediaType.APPLICATION_JSON).nest {
+                    GET("/", applicationHandler::findAll)
+                    POST("/", applicationHandler::create)
+                    PUT("/{id}", applicationHandler::update)
+                    DELETE("/{id}", applicationHandler::delete)
+                }
+                accept(MediaType.TEXT_EVENT_STREAM).nest {
+                    GET("/", applicationHandler::monitor)
+                }
             }
         }
     }

@@ -4,3 +4,7 @@ artifactory:
   credentials:
     username: jdoe
     password: pwd
+spring:
+  data:
+    mongodb:
+      database: release_monitor_test

@@ -4,9 +4,12 @@ import com.github.jntakpe.releasemonitor.dao.ApplicationDAO
 import com.github.jntakpe.releasemonitor.mapper.toDTO
 import com.github.jntakpe.releasemonitor.model.Application
 import com.github.jntakpe.releasemonitor.model.api.ApplicationDTO
+import com.github.tomakehurst.wiremock.WireMockServer
 import org.assertj.core.api.Assertions.assertThat
 import org.bson.types.ObjectId
+import org.junit.AfterClass
 import org.junit.Before
+import org.junit.BeforeClass
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -15,10 +18,28 @@ import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.http.MediaType
 import org.springframework.test.context.junit4.SpringRunner
 import org.springframework.test.web.reactive.server.WebTestClient
+import reactor.test.StepVerifier
+import java.time.Duration
 
 @RunWith(SpringRunner::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class ApplicationHandlerTest {
+
+    companion object {
+        private val wiremockServer = WireMockServer(8089)
+
+        @JvmStatic
+        @BeforeClass
+        fun setupClass() {
+            wiremockServer.start()
+        }
+
+        @JvmStatic
+        @AfterClass
+        fun tearDown() {
+            wiremockServer.stop()
+        }
+    }
 
     @LocalServerPort private var port: Int? = null
 
@@ -59,6 +80,30 @@ class ApplicationHandlerTest {
             val apps = it.responseBody
             assertThat(apps).isEmpty()
         }
+    }
+
+    @Test
+    fun `monitor should retrieve some apps`() {
+        val count = applicationDAO.count()
+        val response = client.get()
+                .uri("$API$APPLICATIONS")
+                .accept(MediaType.TEXT_EVENT_STREAM)
+                .exchange()
+                .expectStatus().isOk
+                .expectHeader().contentType(MediaType.TEXT_EVENT_STREAM)
+                .returnResult(ApplicationDTO::class.java)
+                .responseBody
+        StepVerifier.withVirtualTime { response }
+                .expectSubscription()
+                .expectNoEvent(Duration.ZERO)
+                .recordWith { ArrayList() }
+                .expectNextCount(count)
+                .consumeRecordedWith {
+                    assertThat(it).hasSize(count.toInt())
+                    it.map { it.versions }.forEach { assertThat(it).isNotEmpty }
+                }
+                .thenCancel()
+                .verify()
     }
 
     @Test

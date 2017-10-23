@@ -1,6 +1,4 @@
-artifactory:
-  host: http://depdevops-artifactory.westeurope.cloudapp.azure.com
-  gradleRepository: /gradle-repo-local
-  credentials:
-    username: some_username
-    password: some_password
+spring:
+  data:
+    mongodb:
+      database: release_monitor
