@@ -65,12 +65,13 @@ class ApplicationService(private val applicationRepository: ApplicationRepositor
     }
 
     private fun updateVersionsIfNeeded(existing: Application, versions: List<AppVersion>): Mono<Application> {
-        if (existing.versions == versions) {
-            return Mono.just(existing)
+        return if (existing.versions == versions) {
+            Mono.just(existing)
+        } else {
+            LOGGER.info("Update $existing versions to $versions")
+            applicationRepository.save(existing.copy(versions = versions))
+                    .doOnSuccess { LOGGER.info("$it versions updated") }
         }
-        LOGGER.info("Update $existing versions to $versions")
-        return applicationRepository.save(existing.copy(versions = versions))
-                .doOnSuccess { LOGGER.info("$it versions updated") }
     }
 
     private fun findById(id: ObjectId): Mono<Application> {
