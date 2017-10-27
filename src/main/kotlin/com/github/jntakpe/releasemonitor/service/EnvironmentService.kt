@@ -6,6 +6,7 @@ import com.github.jntakpe.releasemonitor.utils.loggerFor
 import org.bson.types.ObjectId
 import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.stereotype.Service
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.core.publisher.toMono
 
@@ -38,6 +39,13 @@ class EnvironmentService(private val environmentRepository: EnvironmentRepositor
                 .doOnNext { LOGGER.info("Deleting $it") }
                 .flatMap { a -> environmentRepository.delete(a).then(a.toMono()) }
                 .doOnSuccess { LOGGER.info("$it deleted") }
+    }
+
+    fun findAll(): Flux<Environment> {
+        return Mono.just(true)
+                .doOnNext { LOGGER.debug("Searching all environments") }
+                .flatMapMany { environmentRepository.findAll() }
+                .doOnComplete { LOGGER.debug("All environments retrieved") }
     }
 
     private fun findById(id: ObjectId): Mono<Environment> {

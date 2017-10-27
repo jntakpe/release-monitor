@@ -101,4 +101,21 @@ class EnvironmentServiceTest {
                 .verifyError(EmptyResultDataAccessException::class.java)
     }
 
+    @Test
+    fun `find all should retrieve some`() {
+        environmentService.findAll().test()
+                .recordWith { ArrayList() }
+                .expectNextCount(environmentDAO.count())
+                .consumeRecordedWith { assertThat(it).contains(environmentDAO.createDxpAssembly(), environmentDAO.createDxpIntegration()) }
+                .verifyComplete()
+    }
+
+    @Test
+    fun `find all should be empty`() {
+        environmentDAO.deleteAll()
+        environmentService.findAll().test()
+                .expectNextCount(0)
+                .verifyComplete()
+    }
+
 }
