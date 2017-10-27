@@ -27,21 +27,29 @@ class EnvironmentService(private val environmentRepository: EnvironmentRepositor
         return findById(id)
                 .map { checkIdMatches(id, env) }
                 .switchIfEmpty(errorIfEmpty(id))
-                .doOnNext { EnvironmentService.LOGGER.info("Updating $it") }
+                .doOnNext { LOGGER.info("Updating $it") }
                 .flatMap { environmentRepository.save(it) }
-                .doOnSuccess { EnvironmentService.LOGGER.info("$it updated") }
+                .doOnSuccess { LOGGER.info("$it updated") }
+    }
+
+    fun delete(id: ObjectId): Mono<Environment> {
+        return findById(id)
+                .switchIfEmpty(errorIfEmpty(id))
+                .doOnNext { LOGGER.info("Deleting $it") }
+                .flatMap { a -> environmentRepository.delete(a).then(a.toMono()) }
+                .doOnSuccess { LOGGER.info("$it deleted") }
     }
 
     private fun findById(id: ObjectId): Mono<Environment> {
         return Mono.just(id)
-                .doOnNext { EnvironmentService.LOGGER.debug("Searching environment with id $it") }
+                .doOnNext { LOGGER.debug("Searching environment with id $it") }
                 .flatMap { environmentRepository.findById(it) }
-                .doOnNext { EnvironmentService.LOGGER.debug("$it retrieved with id $id") }
+                .doOnNext { LOGGER.debug("$it retrieved with id $id") }
     }
 
     private fun errorIfEmpty(id: ObjectId): Mono<Environment> {
         return EmptyResultDataAccessException("Unable to find environment matching id $id", 1).toMono<Environment>()
-                .doOnError { EnvironmentService.LOGGER.warn(it.message) }
+                .doOnError { LOGGER.warn(it.message) }
     }
 
     private fun checkIdMatches(id: ObjectId, env: Environment): Environment {

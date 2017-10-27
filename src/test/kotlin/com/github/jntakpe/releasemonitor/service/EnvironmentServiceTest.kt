@@ -3,7 +3,7 @@ package com.github.jntakpe.releasemonitor.service
 import com.github.jntakpe.releasemonitor.dao.EnvironmentDAO
 import com.github.jntakpe.releasemonitor.model.Environment
 import com.github.jntakpe.releasemonitor.model.EnvironmentType
-import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThat
 import org.bson.types.ObjectId
 import org.junit.Before
 import org.junit.Test
@@ -35,9 +35,9 @@ class EnvironmentServiceTest {
         val environment = Environment("bar", EnvironmentType.ASSEMBLY, "foo")
         environmentService.create(environment).test()
                 .consumeNextWith {
-                    Assertions.assertThat(it.id).isNotNull()
-                    Assertions.assertThat(it).isEqualTo(environment)
-                    Assertions.assertThat(environmentDAO.count()).isEqualTo(initCount + 1)
+                    assertThat(it.id).isNotNull()
+                    assertThat(it).isEqualTo(environment)
+                    assertThat(environmentDAO.count()).isEqualTo(initCount + 1)
                 }
                 .verifyComplete()
     }
@@ -55,9 +55,9 @@ class EnvironmentServiceTest {
         val updatedName = "updated"
         environmentService.update(env.id!!, env.copy(name = updatedName)).test()
                 .consumeNextWith {
-                    Assertions.assertThat(it.id).isEqualTo(env.id)
-                    Assertions.assertThat(it.name).isEqualTo(updatedName)
-                    Assertions.assertThat(environmentDAO.count()).isEqualTo(initCount)
+                    assertThat(it.id).isEqualTo(env.id)
+                    assertThat(it.name).isEqualTo(updatedName)
+                    assertThat(environmentDAO.count()).isEqualTo(initCount)
                 }
                 .verifyComplete()
     }
@@ -79,7 +79,26 @@ class EnvironmentServiceTest {
     fun `update should set id if null`() {
         val env = environmentDAO.findAny()
         environmentService.update(env.id!!, env.copy(id = null, name = "updated")).test()
-                .consumeNextWith { a -> Assertions.assertThat(a.id).isEqualTo(env.id) }
+                .consumeNextWith { a -> assertThat(a.id).isEqualTo(env.id) }
                 .verifyComplete()
     }
+
+    @Test
+    fun `delete should remove environment`() {
+        val initCount = environmentDAO.count()
+        val env = environmentDAO.findAny()
+        environmentService.delete(env.id!!).test()
+                .consumeNextWith {
+                    assertThat(environmentDAO.count()).isEqualTo(initCount - 1)
+                    assertThat(environmentDAO.findAll()).doesNotContain(env)
+                }
+                .verifyComplete()
+    }
+
+    @Test
+    fun `delete should fail if id missing`() {
+        environmentService.delete(ObjectId()).test()
+                .verifyError(EmptyResultDataAccessException::class.java)
+    }
+
 }

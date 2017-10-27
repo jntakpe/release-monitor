@@ -21,4 +21,5 @@ class EnvironmentDAO(private val template: MongoTemplate) {
 
     fun findAny() = template.find(Query(), Environment::class.java).firstOrNull() ?: throw IllegalStateException("No env found")
 
+    fun findAll() = template.findAll(Environment::class.java)
 }
