@@ -6,7 +6,7 @@ import org.springframework.data.mongodb.core.mapping.Document
 
 @Document
 @CompoundIndex(name = "name_type", def = "{'name' : 1, 'type': 1}", unique = true)
-class Environment(val name: String, val type: EnvironmentType, val url: String, val id: ObjectId? = null) {
+data class Environment(val name: String, val type: EnvironmentType, val url: String, val id: ObjectId? = null) {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
