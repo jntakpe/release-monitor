@@ -15,8 +15,6 @@ import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.http.MediaType
 import org.springframework.test.context.junit4.SpringRunner
 import org.springframework.test.web.reactive.server.WebTestClient
-import reactor.test.StepVerifier
-import java.time.Duration
 
 @RunWith(SpringRunner::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -61,30 +59,6 @@ class ApplicationHandlerTest {
             val apps = it.responseBody
             assertThat(apps).isEmpty()
         }
-    }
-
-    @Test
-    fun `monitor should retrieve some apps`() {
-        val count = applicationDAO.count()
-        val response = client.get()
-                .uri("$API$APPLICATIONS")
-                .accept(MediaType.TEXT_EVENT_STREAM)
-                .exchange()
-                .expectStatus().isOk
-                .expectHeader().contentType(MediaType.TEXT_EVENT_STREAM)
-                .returnResult(ApplicationDTO::class.java)
-                .responseBody
-        StepVerifier.withVirtualTime { response }
-                .expectSubscription()
-                .expectNoEvent(Duration.ZERO)
-                .recordWith { ArrayList() }
-                .expectNextCount(count)
-                .consumeRecordedWith {
-                    assertThat(it).hasSize(count.toInt())
-                    it.map { it.versions }.forEach { assertThat(it).isNotEmpty }
-                }
-                .thenCancel()
-                .verify()
     }
 
     @Test

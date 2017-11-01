@@ -21,9 +21,6 @@ class RoutesConfiguration(private val applicationHandler: ApplicationHandler) {
                     PUT("/{id}", applicationHandler::update)
                     DELETE("/{id}", applicationHandler::delete)
                 }
-                accept(MediaType.TEXT_EVENT_STREAM).nest {
-                    GET("/", applicationHandler::monitor)
-                }
             }
         }
     }

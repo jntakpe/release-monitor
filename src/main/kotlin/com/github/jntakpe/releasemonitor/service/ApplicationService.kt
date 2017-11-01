@@ -7,11 +7,12 @@ import com.github.jntakpe.releasemonitor.repository.ArtifactoryRepository
 import com.github.jntakpe.releasemonitor.utils.loggerFor
 import org.bson.types.ObjectId
 import org.springframework.dao.EmptyResultDataAccessException
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
+import org.springframework.web.reactive.function.client.WebClientResponseException
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.core.publisher.toMono
-import java.time.Duration
 import java.util.stream.Collectors
 
 @Service
@@ -52,15 +53,10 @@ class ApplicationService(private val applicationRepository: ApplicationRepositor
                 .doOnComplete { LOGGER.debug("All applications retrieved") }
     }
 
-    fun monitor(): Flux<Application> {
-        return Flux.interval(Duration.ZERO, Duration.ofSeconds(10))
-                .flatMap { findAll() }
-                .flatMap { appWithVersions(it) }
-    }
-
-    private fun appWithVersions(app: Application): Mono<Application> {
+    fun refreshVersions(app: Application): Mono<Application> {
         return artifactoryRepository.findVersions(app)
                 .collect(Collectors.toList())
+                .onErrorResume({ isNotFoundError(it) }, { Mono.just(emptyList()) })
                 .flatMap { updateVersionsIfNeeded(app, it) }
     }
 
@@ -73,6 +69,8 @@ class ApplicationService(private val applicationRepository: ApplicationRepositor
                     .doOnSuccess { LOGGER.info("$it versions updated") }
         }
     }
+
+    private fun isNotFoundError(e: Throwable) = e is WebClientResponseException && e.statusCode == HttpStatus.NOT_FOUND
 
     private fun findById(id: ObjectId): Mono<Application> {
         return Mono.just(id)

@@ -12,10 +12,8 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.dao.DuplicateKeyException
 import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.test.context.junit4.SpringRunner
-import reactor.test.StepVerifier
+import org.springframework.web.reactive.function.client.WebClientResponseException
 import reactor.test.test
-import java.time.Duration
-import java.util.function.Consumer
 
 @SpringBootTest
 @RunWith(SpringRunner::class)
@@ -121,66 +119,30 @@ class ApplicationServiceTest {
     }
 
     @Test
-    fun `monitor should retrieve some with versions`() {
-        val count = applicationDAO.count()
-        StepVerifier.withVirtualTime { applicationService.monitor() }
+    fun `refresh versions should update versions`() {
+        val app = applicationDAO.findAny()
+        applicationService.refreshVersions(app).test()
                 .expectSubscription()
-                .expectNoEvent(Duration.ZERO)
-                .recordWith { ArrayList() }
-                .expectNextCount(count)
-                .consumeRecordedWith {
-                    assertThat(it).hasSize(count.toInt())
-                    it.map { it.versions }.forEach { assertThat(it).isNotEmpty }
+                .consumeNextWith {
+                    assertThat(it.versions).isNotEqualTo(app.versions)
+                    assertThat(it.versions).isEqualTo(applicationDAO.findById(app.id!!).versions)
                 }
-                .thenCancel()
-                .verify()
+                .verifyComplete()
     }
 
     @Test
-    fun `monitor should update versions`() {
-        StepVerifier.withVirtualTime { applicationService.monitor() }
+    fun `refresh versions should be empty if not found`() {
+        applicationService.refreshVersions(applicationDAO.createAppWithoutVersions()).test()
                 .expectSubscription()
-                .expectNoEvent(Duration.ZERO)
-                .recordWith { ArrayList() }
-                .expectNextCount(applicationDAO.count())
-                .consumeRecordedWith {
-                    assertThat(it).isNotEmpty
-                    it.forEach { assertThat(it.versions).isEqualTo(applicationDAO.findById(it.id!!).versions) }
-                }
-                .thenCancel()
-                .verify()
+                .consumeNextWith { assertThat(it.versions).isEmpty() }
+                .verifyComplete()
     }
 
     @Test
-    fun `monitor should refresh applications at fixed interval`() {
-        StepVerifier.withVirtualTime { applicationService.monitor() }
+    fun `refresh versions should fail cuz unauthorized`() {
+        applicationService.refreshVersions(Application("com.github.jntakpe", "service-unauthorized")).test()
                 .expectSubscription()
-                .verifyWithDelayCouple()
-                .verifyWithDelayCouple(Duration.ofSeconds(10))
-                .verifyWithDelayCouple(Duration.ofSeconds(10))
-                .thenCancel()
-                .verify()
-    }
-
-    @Test
-    fun `monitor should not retrieve any application`() {
-        applicationDAO.deleteAll()
-        applicationService.monitor().test()
-                .expectSubscription()
-                .expectNoEvent(Duration.ofSeconds(1))
-                .thenCancel()
-                .verify()
-    }
-
-    private fun StepVerifier.Step<Application>.verifyWithDelayCouple(delay: Duration = Duration.ZERO): StepVerifier.Step<Application> {
-        val consumer = Consumer<Application> {
-            assertThat(it).isNotNull()
-            assertThat(applicationDAO.createMockPi() == it || applicationDAO.createReleaseMonitor() == it).isTrue()
-            assertThat(it.versions).isNotEmpty
-        }
-        return this.expectNoEvent(delay)
-                .consumeNextWith(consumer)
-                .consumeNextWith(consumer)
+                .verifyError(WebClientResponseException::class.java)
     }
 
 }

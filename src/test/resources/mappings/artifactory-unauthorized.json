@@ -1,0 +1,13 @@
+{
+  "request": {
+    "url": "/artifactory/api/storage/gradle-repo-local/com/github/jntakpe/service-unauthorized",
+    "method": "GET"
+  },
+  "response": {
+    "status": 401,
+    "body": "{ \"errors\" : [ { \"status\" : 401, \"message\" : \"Authentication is required\" } ] }",
+    "headers": {
+      "Content-Type": "application/json;charset=UTF-8"
+    }
+  }
+}

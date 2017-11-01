@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.function.server.ServerResponse
 import org.springframework.web.reactive.function.server.body
-import org.springframework.web.reactive.function.server.bodyToServerSentEvents
 import reactor.core.publisher.Mono
 import reactor.core.publisher.toMono
 import java.net.URI
@@ -17,8 +16,6 @@ import java.net.URI
 class ApplicationHandler(private val applicationService: ApplicationService) {
 
     fun findAll(request: ServerRequest) = ServerResponse.ok().body(applicationService.findAll().map { it.toDTO() })
-
-    fun monitor(request: ServerRequest) = ServerResponse.ok().bodyToServerSentEvents(applicationService.monitor().map { it.toDTO() })
 
     fun create(request: ServerRequest): Mono<ServerResponse> {
         return request.bodyToMono(ApplicationDTO::class.java)

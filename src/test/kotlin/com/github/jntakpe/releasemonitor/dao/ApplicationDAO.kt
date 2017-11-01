@@ -15,17 +15,21 @@ class ApplicationDAO(private val template: MongoTemplate) {
 
     fun deleteAll() = template.remove(Query(), Application::class.java)
 
+    fun insert(app: Application) = app.apply { template.insert(app) }
+
     fun insertAll() = template.insertAll(listOf(createMockPi(), createReleaseMonitor()))
-
-    fun createMockPi() = Application("com.github.jntakpe", "mockpi")
-
-    fun createReleaseMonitor() = Application("com.github.jntakpe", "release-monitor", listOf(version()))
 
     fun findAny() = template.find(Query(), Application::class.java).firstOrNull() ?: throw IllegalStateException("No app found")
 
     fun findAll() = template.findAll(Application::class.java)
 
     fun findById(id: ObjectId) = template.findById(id, Application::class.java)
+
+    fun createMockPi() = Application("com.github.jntakpe", "mockpi")
+
+    fun createReleaseMonitor() = Application("com.github.jntakpe", "release-monitor", listOf(version()))
+
+    fun createAppWithoutVersions() = Application("com.github.jntakpe", "not-yet-released")
 
     private fun version() = AppVersion("1.2.3", 1, 2, 3, VersionType.RELEASE)
 }
